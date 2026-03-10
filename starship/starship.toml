@@ -1,0 +1,117 @@
+format = """
+$directory\
+$git_branch\
+$git_status\
+$fill\
+$time\
+$python\
+$lua\
+$nodejs\
+$golang\
+$haskell\
+$rust\
+$ruby\
+$package\
+$aws\
+$docker_context\
+$jobs\
+$cmd_duration\
+$line_break\
+$character"""
+
+add_newline = true
+palette = 'purple'
+
+[directory]
+style = 'bold fg:bright_purple'
+format = '[$path ]($style)'
+truncation_length = 3
+truncation_symbol = '…/'
+truncate_to_repo = true
+
+[git_branch]
+always_show_remote = true
+style = 'fg:medium_purple'
+symbol = ' '
+format = '[on](lavender) [$symbol$branch ]($style)'
+
+[git_status]
+style = 'fg:light_purple'
+format = '([$all_status$ahead_behind]($style) )'
+
+[fill]
+symbol = ' '
+
+[time]
+disabled = false
+format = '🕙[\[ $time \]]($style) '
+time_format = '%T'
+utc_time_offset = '-6'
+
+[python]
+style = 'purple'
+symbol = ' '
+format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+pyenv_version_name = true
+pyenv_prefix = ''
+
+[lua]
+symbol = ' '
+
+[nodejs]
+style = 'violet'
+symbol = ' '
+
+[golang]
+style = 'medium_purple'
+symbol = ' '
+
+[haskell]
+style = 'light_purple'
+symbol = ' '
+
+[rust]
+style = 'magenta'
+symbol = ' '
+
+[ruby]
+style = 'violet'
+symbol = ' '
+
+[package]
+symbol = '󰏗 '
+
+[aws]
+symbol = ' '
+style = 'lavender'
+format = '[$symbol($profile )(\[$duration\] )]($style)'
+
+[docker_context]
+symbol = ' '
+style = 'fg:violet'
+format = '[$symbol]($style) $path'
+detect_files = ['docker-compose.yml', 'docker-compose.yaml', 'Dockerfile']
+detect_extensions = ['Dockerfile']
+
+[jobs]
+symbol = ' '
+style = 'magenta'
+number_threshold = 1
+format = '[$symbol]($style)'
+
+[cmd_duration]
+min_time = 500
+style = 'fg:gray'
+format = '[$duration]($style)'
+
+[palettes.purple]
+bright_purple = '#bd93f9'
+medium_purple = '#9580ff'
+light_purple = '#c7a2ff'
+purple = '#8b5cf6'
+violet = '#7c3aed'
+magenta = '#d946ef'
+lavender = '#e9d5ff'
+gray = '#9ca3af'
+black = '#1e1b29'
+white = '#f3e8ff'

@@ -1,0 +1,283 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!DOCTYPE macros SYSTEM "http://www.4d.com/dtd/2007/macros.dtd" >
+
+<!--
+Description
+This file is created in the 4D folder at the first launch of the database.
+It automatically creates several macro commands that can be enriched or modified.
+You can also add all the macros required for your own development needs manually.
+
+List of default macro commands.
+
+Logical blocks
+_________________________________________________________________________________
+If "If" logical block
+IfElse "If" logical block with an "Else" proposition
+CaseOf "Case" logical block
+While "While" logical block
+For "For" logical block
+Repeat "Repeat" logical block
+
+Frequently-used database blocks
+_________________________________________________________________________________
+"LoopRecord" Loop on a table selection with saving of record (use a table name as selection)
+"LoopRecordNoSave" Loop on a table selection without saving records (use a table name as selection)
+
+Useful blocks
+_________________________________________________________________________________
+"Header"	Header for method name
+"CodeModif" Adds 4D user name and date for development in multi-user environment
+-->
+
+<macros>
+
+<!-- Logical blocks -->
+<macro name="If">
+<text>If(<caret/>)
+<selection/>
+End if</text>
+</macro>
+
+<macro name="IfElse">
+<text>If(<caret/>)
+<selection/>
+Else
+
+End if</text>
+</macro>
+
+<macro name="CaseOf">
+<text>Case of
+:(<caret/>)
+
+Else
+<selection/>
+End case</text>
+</macro>
+
+<macro name="While">
+<text>While(<caret/>)
+<selection/>
+End while</text>
+</macro>
+
+<macro name="For">
+<text>For(<caret/>;;)
+<selection/>
+End for
+</text>
+</macro>
+
+<macro name="Foreach">
+<text>For each(<caret/>;)
+<selection/>
+End for each
+</text>
+</macro>
+
+<macro name="Foreachwhile">
+<text>For each(<caret/>;)While()
+<selection/>
+End for each
+</text>
+</macro>
+
+<macro name="Foreachuntil">
+<text>For each(<caret/>;)Until()
+<selection/>
+End for each
+</text>
+</macro>
+
+<macro name="Repeat">
+<text>Repeat
+<selection/>
+Until(<caret/>)
+</text>
+</macro>
+
+<!-- __________________________ Frequent database blocks ___________________________ -->
+<macro name="LoopRecord">
+<text>While (Not(End selection(<selection/>)))
+<caret/>
+Save Record(<selection/>)
+Next Record(<selection/>)
+End while
+</text>
+</macro>
+
+<macro name="LoopRecordNoSave">
+<text>While (Not(End selection(<selection/>)))
+<caret/>
+Next Record(<selection/>)
+End while
+</text>
+</macro>
+
+
+<!-- ___________________________ Useful blocks __________________________ -->
+<macro name="methodheader" method_event="on_create" version="2">
+<text>/* 
+	Method: <method_name/>
+	*/
+
+<caret/>
+</text>
+  </macro>
+
+  <macro name="section" version="2">
+    <text> // ------------------------------- <caret/> -------------------------------
+    </text>
+  </macro>
+
+  <macro name="header" version="2">
+   <text> /* -----------------------------------------------------------------------
+<caret/>
+*/</text>
+  </macro>
+	 <macro name="Change to var-syntax" method_event="on_load" in_toolbar="true" version="2">
+	    <text><method>macroCompilerDirectivesToVar</method></text>
+	 </macro>
+  <macro name="code_modif" version="2">
+    <text> // rpb003 <date format="1"/> <time format="1"/> </text>    
+  </macro>
+  <!-- Useful SQL statements -->
+  <macro name="-" in_menu="true" type_ahead="false" in_toolbar="false"><text/></macro>
+
+  <macro name="SQL_USE_4D_Function" type_ahead="true" in_menu = "true" in_toolbar="false">
+    <text>SELECT ID, {fn My4DFunction() AS NUMERIC} /* My4DFunction must have activated the 'Available through SQL' property */
+      FROM table
+      LIMIT 1 /* Remove or modify this line if you want to apply the function to all or a part of the records */
+      INTO :aArray1, :aArray2;
+    </text>
+  </macro>
+
+  <macro name="SQL_USE_FILTERS" type_ahead="true" in_menu = "true" in_toolbar="false">
+    <text>SELECT *
+      FROM table
+      LIMIT 30 /* Restrict to 30 the number of returned records */
+      OFFSET 4 /* Skip the first 4 records before beginning to count for the LIMIT clause */
+      INTO :listbox;
+    </text>
+  </macro>
+
+  <macro name="SQL_EXPLICIT_INNER_JOIN" type_ahead="true" in_menu = "true" in_toolbar="false">
+    <text>SELECT name, department
+      FROM employees
+      INNER JOIN departments
+      ON employees.depID = departments.depID
+      INTO LISTBOX :aListbox;
+    </text>
+  </macro>
+
+  <macro name="SQL_IMPLICIT_INNER_JOIN" type_ahead="true" in_menu = "true" in_toolbar="false">
+    <text>SELECT name, department
+      FROM employees, departments
+      WHERE employees.depID = departments.depID
+      INTO LISTBOX :aListbox;
+    </text>
+  </macro>
+
+  <macro name="SQL_CROSS_JOIN" type_ahead="true" in_menu = "true" in_toolbar="false">
+    <text>SELECT name, department
+      FROM employees
+      CROSS JOIN departments
+      INTO LISTBOX :aListbox;
+    </text>
+  </macro>
+
+  <macro name="SQL_LEFT_OUTER_JOIN" type_ahead="true" in_menu = "true" in_toolbar="false">
+    <text>SELECT name, department
+      FROM employees
+      LEFT OUTER JOIN departments
+      ON employees.depID = departments.depID
+      INTO LISTBOX :aListbox;
+    </text>
+  </macro>
+
+  <macro name="SQL_RIGHT_OUTER_JOIN" type_ahead="true" in_menu = "true" in_toolbar="false">
+    <text>SELECT name, department
+      FROM employees
+      RIGHT OUTER JOIN departments
+      ON employees.depID = departments.depID
+      INTO LISTBOX :aListbox;
+    </text>
+  </macro>
+
+  <macro name="SQL_FULL_OUTER_JOIN" type_ahead="true" in_menu = "true" in_toolbar="false">
+    <text>SELECT name, department
+      FROM employees
+      FULL OUTER JOIN departments
+      ON employees.depID = departments.depID
+      INTO LISTBOX :aListbox;
+    </text>
+  </macro>
+
+  <macro name="SQL_REPLICATE_IN_ARRAYS_SHORT" type_ahead="true" in_menu = "true" in_toolbar="false">
+    <text>REPLICATE id, field1, field2, field3
+      FROM remoteTable
+      FOR REMOTE STAMP :vRemote_Stamp
+      REMOTE OVER LOCAL
+      LATEST REMOTE STAMP :vLatest_Remote_Stamp
+      INTO :aID, :aField1, :aField2, :aField3;
+    </text>
+  </macro>
+
+  <macro name="SQL_REPLICATE_IN_FIELDS_SHORT" type_ahead="true" in_menu = "true" in_toolbar="false">
+    <text>REPLICATE id, field1, field2, field3
+      FROM remoteTable
+      FOR REMOTE STAMP :vRemote_Stamp
+      REMOTE OVER LOCAL
+      LATEST REMOTE STAMP :vLatest_Remote_Stamp
+      INTO localTable (id, field1, field2, field3);
+    </text>
+  </macro>
+
+  <macro name="SQL_REPLICATE_IN_ARRAYS_FULL" type_ahead="true" in_menu = "true" in_toolbar="false">
+    <text>REPLICATE id, field1, field2, field3
+      FROM remoteTable
+      WHERE remoteTable.id >= :vComparison_Value /*optionnal*/
+      LIMIT :vLimit_Value /*optionnal*/
+      OFFSET:vOffset_Value /*optionnal*/
+      FOR REMOTE STAMP :vRemote_Stamp,
+      LOCAL STAMP :vLocal_Stamp /*optionnal*/
+      REMOTE OVER LOCAL /*optionnal*/
+      /* or LOCAL OVER REMOTE */
+      LATEST REMOTE STAMP :vLatest_Remote_Stamp, /*optionnal*/
+      LATEST LOCAL STAMP :vLatest_Local_Stamp /*optionnal*/
+      INTO :aID, :aField1, :aField2, :aField3;
+    </text>
+  </macro>
+
+  <macro name="SQL_REPLICATE_IN_FIELDS_FULL" type_ahead="true" in_menu = "true" in_toolbar="false">
+    <text>REPLICATE id, field1, field2, field3
+      FROM remoteTable
+      WHERE remoteTable.id >= :vComparison_Value /*optionnal*/
+      LIMIT :vLimit_Value /*optionnal*/
+      OFFSET :vOffset_Value /*optionnal*/
+      FOR REMOTE STAMP :vRemote_Stamp,
+      LOCAL STAMP :vLocal_Stamp /*optionnal*/
+      REMOTE OVER LOCAL /*optionnal*/
+      /* or LOCAL OVER REMOTE */
+      LATEST REMOTE STAMP :vLatest_Remote_Stamp, /*optionnal*/
+      LATEST LOCAL STAMP :vLatest_Local_Stamp /*optionnal*/
+      INTO localTable (id, field1, field2, field3);
+    </text>
+  </macro>
+
+  <macro name="SQL_SYNCHRONIZE" type_ahead="true" in_menu = "true" in_toolbar="false">
+    <text>SYNCHRONIZE
+      LOCAL localTable (id, field1, field2, field3)
+      WITH
+      REMOTE remoteTable (id, field1, field2, field3)
+      FOR REMOTE STAMP :vRemote_Stamp,
+      LOCAL STAMP :vLocal_Stamp /*optionnal*/
+      REMOTE OVER LOCAL /*optionnal*/
+      /* or LOCAL OVER REMOTE */
+      LATEST REMOTE STAMP :vLatest_Remote_Stamp, /*optionnal*/
+      LATEST LOCAL STAMP :vLatest_Local_Stamp; /*optionnal*/
+    </text>
+  </macro>
+
+</macros>

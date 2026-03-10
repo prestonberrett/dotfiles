@@ -1,0 +1,77 @@
+# This is Git's per-user configuration file.
+[user]
+	name = Berrett, Preston
+  email = [email]
+
+[alias]
+	s = status
+	sw = switch
+	swb = switch -c
+	fp = !git fetch --prune && git pull
+	r = restore
+	co = checkout
+	cob = checkout -b
+	del = branch -D
+	br = branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate
+	save = !git add -A && git commit -m 'chore: savepoint'
+	undo = reset HEAD~1 --mixed
+	res = !git reset --hard
+	done = !git push origin HEAD
+  lg = !git log --pretty=format:'%C(magenta)%h%Creset -%C(red)%d%Creset %s %C(dim green)(%cr) [%an]' --graph --oneline --all
+
+[branch]
+  sort = -committerdate
+
+[color]
+  ui = true
+
+[color "diff-highlight"]
+	oldNormal = red bold
+	oldHighlight = red bold 52
+	newNormal = green bold
+	newHighlight = green bold 22
+
+[column]
+  ui = auto
+
+[core]
+	editor = nvim
+	pager = diff-so-fancy | less --tabs=4 -RF
+	preloadindex = true
+
+[credential]
+	helper = C:/Users/username/.dotnet/tools/git-credential-manager.exe
+
+[diff]
+  algorithm = histogram
+	context = 3
+  interhunkcontext = 10
+
+[fetch]
+  prune = true
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
+[interactive]
+	diffFilter = diff-so-fancy --patch
+	singlekey = true
+
+[pull]
+	rebase = true
+
+[push]
+  autoSetupRemote = true
+
+[rebase]
+	autostash = true
+
+[safe]
+	directory = C:/Users/username/AppData/Local/
+
+[status]
+	showuntrackedfiles = all
+

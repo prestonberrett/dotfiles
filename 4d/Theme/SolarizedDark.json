@@ -1,0 +1,144 @@
+{
+	"fontName": "ZedMono Nerd Font Mono",
+	"fontSize": 21,
+	"4D": {
+		"commands": {
+			"color": "#859900",
+			"style": {
+				"bold": true,
+				"italic": false,
+				"underline": false
+			}
+		},
+		"comments": {
+			"color": "#586E75",
+			"style": {
+				"bold": false,
+				"italic": false,
+				"underline": false
+			}
+		},
+		"constants": {
+			"color": "#D43783",
+			"style": {
+				"bold": true,
+				"italic": false,
+				"underline": true
+			}
+		},
+		"errors": {
+			"color": "#DB312E",
+			"style": {
+				"bold": true,
+				"italic": true,
+				"underline": false
+			}
+		},
+		"fields": {
+			"color": "#839496",
+			"style": {
+				"bold": true,
+				"italic": false,
+				"underline": false
+			}
+		},
+		"interprocess_variables": {
+			"color": "#CC4D16",
+			"style": {
+				"bold": false,
+				"italic": false,
+				"underline": false
+			}
+		},
+		"keywords": {
+			"color": "#2AA197",
+			"style": {
+				"bold": true,
+				"italic": false,
+				"underline": false
+			}
+		},
+		"local_variables": {
+			"color": "#D43783",
+			"style": {
+				"bold": false,
+				"italic": false,
+				"underline": false
+			}
+		},
+		"methods": {
+			"color": "#268AD1",
+			"style": {
+				"bold": true,
+				"italic": true,
+				"underline": false
+			}
+		},
+		"parameters": {
+			"color": "#6C70C4",
+			"style": {
+				"bold": true,
+				"italic": false,
+				"underline": false
+			}
+		},
+		"plain_text": {
+			"color": "#839496",
+			"style": {
+				"bold": false,
+				"italic": false,
+				"underline": false
+			}
+		},
+		"plug_ins": {
+			"color": "#B58800",
+			"style": {
+				"bold": true,
+				"italic": true,
+				"underline": false
+			}
+		},
+		"process_variables": {
+			"color": "#CC4D16",
+			"style": {
+				"bold": false,
+				"italic": false,
+				"underline": false
+			}
+		},
+		"tables": {
+			"color": "#839496",
+			"style": {
+				"bold": true,
+				"italic": false,
+				"underline": false
+			}
+		}
+	},
+	"otherStyles": {
+		"back_color": {
+			"color": "#002A36"
+		},
+		"cursor_line_back_color": {
+			"color": "#073642"
+		},
+		"cursor_line_color": {
+			"color": "#073642"
+		},
+		"execution_line_back_color": {
+			"color": "#444444"
+		},
+		"execution_line_frame_color": {
+			"color": "#5A5A5A"
+		},
+		"hilite_back_color": {
+			"color": "#4E500C"
+		},
+		"hilite_block_back_color": {
+			"color": "#92A1A1"
+		},
+		"same_word_back_color": {
+			"color": "#92A1A1"
+		}
+	}
+}

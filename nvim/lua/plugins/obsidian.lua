@@ -1,0 +1,23 @@
+return {
+  --  remove plugin
+}
+-- return {
+-- 	"epwalsh/obsidian.nvim",
+-- 	version = "*", -- recommended, use latest release instead of latest commit
+-- 	lazy = true,
+-- 	dependencies = {
+-- 		"nvim-lua/plenary.nvim",
+-- 	},
+-- 	config = function()
+-- 		require("obsidian").setup({
+-- 			opts = {
+-- 				workspaces = {
+-- 					{
+-- 						name = "personal",
+-- 						path = "C:/dev/obsidian/",
+-- 					},
+-- 				},
+-- 			},
+-- 		})
+-- 	end,
+-- }
