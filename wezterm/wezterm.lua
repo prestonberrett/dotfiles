@@ -9,6 +9,7 @@ local config = wezterm.config_builder()
 config.font = wezterm.font("ZedMono NFM Extd", { weight = "Bold" })
 config.font_size = 18.0
 config.line_height = 1.2
+config.term = "xterm-256color"
 
 -- For example, changing the color scheme:
 config.color_scheme = "Shades of Purple (base16)"
