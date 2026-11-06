@@ -6,10 +6,7 @@ return {
 		"github/copilot.vim",
 	},
 	{
-		"zbirenbaum/copilot-cmp",
-		config = function()
-			require("copilot_cmp").setup()
-		end,
+		"hrsh7th/cmp-buffer",
 	},
 	{
 		"hrsh7th/nvim-cmp",
@@ -38,7 +35,6 @@ return {
 				sources = cmp.config.sources({
 					{ name = "luasnip", group_index = 2 }, -- For luasnip users.
 					{ name = "nvim_lsp", group_index = 2 },
-					{ name = "copilot", group_index = 2 },
 				}, {
 					{ name = "buffer" },
 				}),
