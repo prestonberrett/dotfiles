@@ -310,7 +310,7 @@ keybindings:
 
   # Kill GlazeWM process safely.
   - commands: ["wm-exit"]
-    bindings: ["alt+shift+e"]
+    bindings: ["alt+shift+q"]
 
   # Re-evaluate configuration file.
   - commands: ["wm-reload-config"]
@@ -318,7 +318,7 @@ keybindings:
 
   # Redraw all windows.
   - commands: ["wm-redraw"]
-    bindings: ["alt+shift+w"]
+    bindings: ["alt+shift+d"]
 
   # Launch CMD terminal. Alternatively, use `shell-exec wt` or
   # `shell-exec %ProgramFiles%/Git/git-bash.exe` to start Windows
@@ -379,7 +379,7 @@ keybindings:
   - commands: ["move --workspace 5", "focus --workspace 5"]
     bindings: ["alt+shift+5"]
   - commands: ["move --workspace 6", "focus --workspace 6"]
-    binding: ["alt+shift+6"]
+    bindings: ["alt+shift+6"]
   - commands: ["move --workspace 7", "focus --workspace 7"]
     bindings: ["alt+shift+7"]
   - commands: ["move --workspace 8", "focus --workspace 8"]
