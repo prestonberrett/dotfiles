@@ -1,0 +1,5 @@
+# Dependencies (restore with `npm install` in diff-so-fancy/)
+node_modules/
+
+# Logs written by GlazeWM, Zebar and the AutoHotkey debug mode
+*.log

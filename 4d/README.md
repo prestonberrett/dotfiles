@@ -1,4 +1,4 @@
-#README for 4D
+# README for 4D
 
 The Macros.xml file just contains the default macros for 4D. I have added a couple for comments for when creating a new method, a new 'section', a new 'header', code modifications. There is also a macro for changing to var syntax.
 The Macros.xml file needs to be placed in the following folder on windows: 'C:\Users\%USERNAME%\AppData\Roaming\4D\Macros v2\'. 

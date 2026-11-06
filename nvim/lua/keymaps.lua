@@ -8,8 +8,9 @@ local noremap_options = { noremap = true }
 --NOTE: Sensible remaps, some from the Primeagen
 map("v", "K", ":m '<-2<CR>gv=gv", noremap_options) -- move selected code up
 map("v", "J", ":m '>+1<CR>gv=gv", noremap_options) -- move selected code down
-map("i", "<C-j>", "<esc>:m .+1<CR>==", noremap_options) -- 
-map("i", "<C-k>", "<esc>:m .-2<CR>==", noremap_options) -- 
+-- <C-j> is Copilot accept (below), so insert-mode line moves use Alt+arrows
+map("i", "<A-Down>", "<esc>:m .+1<CR>==gi", noremap_options) -- move current line down
+map("i", "<A-Up>", "<esc>:m .-2<CR>==gi", noremap_options) -- move current line up
 
 --map("i", "<C-g>", "")
 map("n", "<leader>k", ":m .-2<CR>==", noremap_options) -- move current line up

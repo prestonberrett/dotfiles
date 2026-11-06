@@ -31,7 +31,7 @@ config.window_padding = {
 if wezterm.target_triple == "x86_64-pc-windows-msvc" then
   -- For command prompt
   -- config.default_prog =
-  --   { 'cmd.exe', '/s', '/k', 'C:/Users/rpb003/.config/clink/clink_x64.exe', 'inject', '-q' }
+  --   { 'cmd.exe', '/s', '/k', os.getenv('USERPROFILE') .. '/.config/clink/clink_x64.exe', 'inject', '-q' }
   -- For Powershell 7
   config.default_prog = { "pwsh.exe" }
 end

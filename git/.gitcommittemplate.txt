@@ -5,7 +5,7 @@
 # See: [Example Page](https://example.com/)
 
 # List all co-authors, so version control systems can connect teams.
-Co-authored-by: Team member <teammemberemail>
+# Co-authored-by: Team member <teammemberemail>
 
 # Why is this change happening, e.g. goals, use cases, stories, etc.?
 Why:

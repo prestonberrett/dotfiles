@@ -140,7 +140,7 @@ End while
 	    <text><method>macroCompilerDirectivesToVar</method></text>
 	 </macro>
   <macro name="code_modif" version="2">
-    <text> // rpb003 <date format="1"/> <time format="1"/> </text>    
+    <text> // <user_os/> <date format="1"/> <time format="1"/> </text>    
   </macro>
   <!-- Useful SQL statements -->
   <macro name="-" in_menu="true" type_ahead="false" in_toolbar="false"><text/></macro>
