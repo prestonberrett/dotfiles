@@ -14,7 +14,7 @@ function Test-InteractiveShell {
         # even from a real terminal. -NoExit means the shell stays open, so it still counts.
         $cmdArgs = @([Environment]::GetCommandLineArgs() | Select-Object -Skip 1)
         if ($cmdArgs -match '^[-/]noe\w*$') { return $true }
-        if ($cmdArgs -match '^[-/](c|com\w*|f|fil\w*|e|ec|enc\w*|noni\w*)$') { return $false }
+        if ($cmdArgs -match '^[-/](c|co|com\w*|cwa|f|fil\w*|e|ec|enc\w*|noni\w*)$') { return $false }
 
         return $true
     } catch {
@@ -65,7 +65,9 @@ function Invoke-GitSwitch {
 # gra: discard ALL unstaged changes. Shows what will be lost and asks first,
 # since `gra` is one letter away from `ga`.
 function Invoke-GitRestoreAll {
-    $changes = & git diff --stat
+    # :/ is the repo root, so this matches what `git restore :/` discards even
+    # when run from a subfolder.
+    $changes = & git diff --stat -- ':/'
     if ($LASTEXITCODE -ne 0) { return }
     if (-not $changes) {
         Write-Host 'No unstaged changes to discard.'
@@ -77,7 +79,7 @@ function Invoke-GitRestoreAll {
         Write-Host 'Cancelled.'
         return
     }
-    & git restore . @args
+    & git restore ':/' @args
 }
 
 function Invoke-GitFetchPull {
@@ -443,7 +445,8 @@ function Set-AwsProfile {
 
     if ($Name) { $env:AWS_PROFILE = $Name }
     $active = if ($env:AWS_PROFILE) { $env:AWS_PROFILE } else { '(default)' }
-    $color = if ($active -match 'prod') { 'Red' } else { 'Green' }
+    # Whole-word 'prod'/'production' only, so names like 'nonprod' stay green
+    $color = if ($active -match '(^|[-_.])prod(uction)?($|[-_.])') { 'Red' } else { 'Green' }
     Write-Host "AWS_PROFILE: $active" -ForegroundColor $color
 }
 
@@ -494,17 +497,13 @@ function Edit-Profile { nvim $PROFILE }
 # default 4D version without editing this file. Deliberately not auto-detected:
 # opening a project in a newer 4D can convert it.
 # The data file is machine-specific: pass -DataFile or set $env:FOURD_DATAFILE.
+# Without either, 4D opens the project and asks for a data file itself.
 function Open-4DProject {
     param(
         [string]$Path = '.\',
         [string]$Exe = $(if ($env:FOURD_EXE) { $env:FOURD_EXE } else { 'C:\Program Files\4D\4D v20.1\4D\4D.exe' }),
         [string]$DataFile = $env:FOURD_DATAFILE
     )
-
-    if (-not $DataFile) {
-        Write-Error "No data file given. Pass -DataFile or set the FOURD_DATAFILE environment variable."
-        return
-    }
 
     $resolved = Resolve-Path $Path -ErrorAction Stop
     if (-not (Test-Path $Exe)) {
@@ -514,7 +513,7 @@ function Open-4DProject {
         Write-Error "4D executable not found: $Exe. $hint Use -Exe or set `$env:FOURD_EXE."
         return
     }
-    if (-not (Test-Path $DataFile)) {
+    if ($DataFile -and -not (Test-Path $DataFile)) {
         Write-Warning "Data file not found: $DataFile (4D will ask you to pick or create one)."
     }
 
@@ -526,7 +525,9 @@ function Open-4DProject {
     foreach ($dir in $searchDirs) {
         $project = Get-ChildItem -Path $dir -Filter '*.4DProject' -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($project) {
-            Start-Process -FilePath $Exe -ArgumentList "`"$($project.FullName)`"", "`"$DataFile`""
+            $launchArgs = @("`"$($project.FullName)`"")
+            if ($DataFile) { $launchArgs += "`"$DataFile`"" }
+            Start-Process -FilePath $Exe -ArgumentList $launchArgs
             return
         }
     }
@@ -536,7 +537,12 @@ function Open-4DProject {
 
 function Invoke-4DCompile {
     param([string]$Path = (Get-Location).Path)
-    & 'C:\dev\4dCompile.ps1' -Path $Path
+    $script = 'C:\dev\4dCompile.ps1'
+    if (-not (Test-Path $script)) {
+        Write-Error "4D compile script not found: $script"
+        return
+    }
+    & $script -Path $Path
 }
 
 ###############################
@@ -756,7 +762,7 @@ Git:
   gswb <branch>         git switch -c <branch>
   gb                    git branch, newest first
   gr <file>             git restore <file>
-  gra                   git restore . (shows changes and asks first)
+  gra                   git restore the whole repo (shows changes and asks first)
   gbl <file>            git blame
   gsync                 fetch, then rebase on origin/<default branch> (autostash)
   gwip                  commit everything as "WIP"
@@ -777,7 +783,7 @@ Terraform / AWS:
 Shortcuts:
   ff <name>             Find files recursively by name.
   compile4d [path]      Compile the 4D project of the current (or given) worktree.
-  open4d [path]         Open 4D project in current (or given) directory ($env:FOURD_EXE overrides the 4D version; data file from -DataFile or $env:FOURD_DATAFILE).
+  open4d [path]         Open 4D project in current (or given) directory ($env:FOURD_EXE overrides the 4D version; data file from -DataFile or $env:FOURD_DATAFILE, else 4D asks).
   hist                  Edit PSReadLine history.
   ll                    Compact colored directory listing.
   mkcd <dir>            Create and enter directory.
@@ -798,16 +804,17 @@ Shortcuts:
 ###############################
 
 function Initialize-PSReadLine {
-    if (-not $isInteractiveShell -or -not (Get-Module -ListAvailable -Name PSReadLine)) {
-        return
-    }
+    # Import-Module with SilentlyContinue is much faster than Get-Module
+    # -ListAvailable, which scans every module folder on each startup.
+    if (-not $isInteractiveShell) { return }
+    Import-Module PSReadLine -ErrorAction SilentlyContinue
+    if (-not (Get-Module -Name PSReadLine)) { return }
 
     $isCore = $PSVersionTable.PSEdition -eq 'Core'
 
     # CompletionPredictor adds argument-aware suggestions (PowerShell 7+):
     #   Install-Module CompletionPredictor
-    $hasPredictor = $isCore -and (Get-Module -ListAvailable -Name CompletionPredictor)
-    if ($hasPredictor) { Import-Module CompletionPredictor }
+    $hasPredictor = $isCore -and [bool](Import-Module CompletionPredictor -PassThru -ErrorAction SilentlyContinue)
 
     $options = @{
         EditMode                      = 'Windows'
@@ -880,11 +887,6 @@ function Initialize-PSReadLine {
 if ($isInteractiveShell) {
     Show-Greeting
 
-    if (Get-Module -ListAvailable -Name PSFzf) {
-        Import-Module PSFzf
-        Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+f' -PSReadlineChordReverseHistory 'Ctrl+r'
-    }
-
     if (Test-Command starship) {
         Invoke-Expression (& starship init powershell)
     }
@@ -892,5 +894,11 @@ if ($isInteractiveShell) {
         Invoke-Expression (& { (zoxide init --cmd cd powershell | Out-String) })
     }
 
+    # Must run before PSFzf: setting EditMode resets every PSReadLine key
+    # binding to its default, which would wipe PSFzf's Ctrl+f / Ctrl+r.
     Initialize-PSReadLine
+
+    if (Import-Module PSFzf -PassThru -ErrorAction SilentlyContinue) {
+        Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+f' -PSReadlineChordReverseHistory 'Ctrl+r'
+    }
 }
