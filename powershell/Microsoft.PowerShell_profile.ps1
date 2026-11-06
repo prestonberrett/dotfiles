@@ -47,7 +47,7 @@ function Get-GitCommit { & git commit $args }
 New-Alias -Name gc -Value Get-GitCommit -Force -Option AllScope
 function Get-GitPush { & git push $args }
 New-Alias -Name gp -Value Get-GitPush -Force -Option AllScope
-function Get-GitLog { & git log --pretty=format:\"%C(magenta)%h%Creset -%C(red)%d%Creset %s %C(dim green)(%cr) [%an] " --graph --oneline --all $args }
+function Get-GitLog { & git log --pretty=format:'%C(magenta)%h%Creset -%C(red)%d%Creset %s %C(dim green)(%cr) [%an]' --graph --oneline --all $args }
 New-Alias -Name gl -Value Get-GitLog -Force -Option AllScope
 function Get-GitSwitch { & git switch $args }
 New-Alias -Name gsw -Value Get-GitSwitch -Force -Option AllScope
@@ -214,18 +214,26 @@ function Invoke-Profile {
     . $PROFILE
 }
 
-function Set-NeovimConfig { Set-Location C:\Users\rpb003\AppData\Local\nvim && nvim }
+function Set-NeovimConfig { Set-Location (Join-Path $env:LOCALAPPDATA 'nvim'); nvim }
 New-Alias -Name nvc -Value Set-NeovimConfig -Force -Option AllScope
 
-function ChangeHistory { nvim C:\Users\rpb003\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt }
+function ChangeHistory { nvim (Get-PSReadLineOption).HistorySavePath }
 New-Alias -Name hist -Value ChangeHistory -Force -Option AllScope
 
 function Open-4DProject {
-    param([string]$Path = ".\")
+    param(
+        [string]$Path = ".\",
+        # Machine-specific data file; set FOURD_DATAFILE in your user environment.
+        [string]$DataFile = $env:FOURD_DATAFILE
+    )
+
+    if (-not $DataFile) {
+        Write-Error "No data file given. Pass -DataFile or set the FOURD_DATAFILE environment variable."
+        return
+    }
 
     $resolved = Resolve-Path $Path -ErrorAction Stop
     $4dExe = "C:\Program Files\4D\4D v20.1\4D\4D.exe"
-    $datafile = "C:\dev\Data\AltPro.4DD"
 
     $searchDirs = @(
         (Join-Path $resolved "4D\Project"),
@@ -235,7 +243,7 @@ function Open-4DProject {
     foreach ($dir in $searchDirs) {
         $project = Get-ChildItem -Path $dir -Filter "*.4DProject" -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($project) {
-            Start-Process -FilePath $4dExe -ArgumentList "`"$($project.FullName)`"", "`"$datafile`""
+            Start-Process -FilePath $4dExe -ArgumentList "`"$($project.FullName)`"", "`"$DataFile`""
             return
         }
     }
@@ -257,7 +265,7 @@ New-Alias -Name 'compile4d' -Value Invoke-4DCompile -Force -Option AllScope
 
 function mkcd {
     param ([Parameter(Mandatory)][string]$Path)
-    New-Item -Path $Path -ItemType Directory -Force & Out-Null
+    New-Item -Path $Path -ItemType Directory -Force | Out-Null
     Set-Location -Path $Path
 }
 
@@ -374,8 +382,9 @@ Profile:
 
 Git:
   gfp                 git fetch && git pull
-  ga                  git add .
-  gc <message>        git commit < -c message >
+  ga                  git add --all
+  gap                 git add --patch
+  gc [-m <message>]   git commit
   gp                  git push
   gs                  git status
   gd                  git diff
@@ -424,24 +433,6 @@ function Set-PSReadLineOptionsCompat {
     }
 }
 
-function Set-PredictionSource {
-    [CmdletBinding(SupportsShouldProcess)]
-    param()
-
-    if (Get-Command -Name 'Set-PredictionSource_Override' -ErrorAction SilentlyContinue) {
-        Set-PredictionSource_Override
-        return
-    }
-
-    if ($PSCmdlet.ShouldProcess('PSReadLine', 'Set prediction source')) {
-        if ($PSVersionTable.PSEdition -eq 'Core') {
-            Set-PSReadLineOption -PredictionSource HistoryAndPlugin
-        }
-
-        Set-PSReadLineOption -MaximumHistoryCount 10000
-    }
-}
-
 function Initialize-PSReadLine {
     if (-not $isInteractiveShell -or -not (Get-Module -ListAvailable -Name PSReadLine)) {
         return
@@ -454,6 +445,7 @@ function Initialize-PSReadLine {
         PredictionSource = 'History'
         PredictionViewStyle = 'ListView'
         BellStyle = 'None'
+        MaximumHistoryCount = 10000
         Colors = @{
             Command = '#87CEEB'
             Parameter = '#98FB98'
@@ -484,14 +476,13 @@ function Initialize-PSReadLine {
         param([string]$line)
         $line -notmatch '(?i)(password|secret|token|apikey|connectionstring)'
     }
-
-    Set-PSReadLineOption -PredictionSource History
-    Set-PSReadLineOption -PredictionViewStyle ListView
 }
 
 # Fzf (import the fuzzy finder and set a shortcut key to begin searching)
-Import-Module PSFzf
-Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+f' -PSReadlineChordReverseHistory 'Ctrl+r'
+if ($isInteractiveShell -and (Get-Module -ListAvailable -Name PSFzf)) {
+    Import-Module PSFzf
+    Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+f' -PSReadlineChordReverseHistory 'Ctrl+r'
+}
 
 ###############################
 # Startup Initialization
@@ -501,6 +492,12 @@ Invoke-Expression(&starship init powershell)
 Invoke-Expression (& { (zoxide init --cmd cd powershell | Out-String) })
 Initialize-PSReadLine
 
-if (Get-Command wt -ErrorAction SilentlyContinue) {
-    Invoke-Expression (& wt config shell init powershell | Out-String)
+# Worktrunk shell integration. Skip Windows Terminal's own wt.exe (an app
+# execution alias under WindowsApps), which would open a new terminal window.
+$worktrunk = Get-Command wt -CommandType Application -All -ErrorAction SilentlyContinue |
+    Where-Object { $_.Source -notlike '*\WindowsApps\*' } |
+    Select-Object -First 1
+if ($worktrunk) {
+    Invoke-Expression (& $worktrunk.Source config shell init powershell | Out-String)
 }
+Remove-Variable worktrunk -ErrorAction SilentlyContinue
