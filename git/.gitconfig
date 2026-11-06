@@ -34,13 +34,16 @@
 [column]
   ui = auto
 
+[commit]
+	template = ~/.gitcommittemplate.txt
+
 [core]
 	editor = nvim
 	pager = diff-so-fancy | less --tabs=4 -RF
 	preloadindex = true
 
 [credential]
-	helper = C:/Users/username/.dotnet/tools/git-credential-manager.exe
+	helper = manager
 
 [diff]
   algorithm = histogram
@@ -70,7 +73,7 @@
 	autostash = true
 
 [safe]
-	directory = C:/Users/username/AppData/Local/
+	directory = ~/AppData/Local/
 
 [status]
 	showuntrackedfiles = all
