@@ -11,28 +11,37 @@ SetWorkingDir A_InitialWorkingDir  ; Ensures a consistent starting directory.
 
 F10:: ; 20-20-20 every 20 minutes look 20 feet away for 20 seconds (F10)
 {
-    static eyeStrainToggle := 0
-    static UserInput := {}
-    ReduceEyeStrain() {
-        SoundPlay("*16", 1)
-        MsgBox("Look 20 feet away for 20 seconds!", "", "T5")
-        Sleep(20 * 1000)
-        SoundPlay("*64", 1)
-        UserInput := InputBox("Input the amount of time to sleep before the next reminder", "All Done!", "", "20")
-        if (UserInput.value = "0") ;Quit if the user clicks cancel
-        {
-            MsgBox("Quitting...", "", "T5")
-        }
-    }
-
-    if (eyeStrainToggle := !eyeStrainToggle) {
-        ReduceEyeStrain ; call immediately
-        SetTimer(ReduceEyeStrain, Number(UserInput.value) * 60000)
-
+    global EyeStrainOn
+    EyeStrainOn := !EyeStrainOn
+    if (EyeStrainOn) {
+        SetTimer(EyeStrainReminder, -1) ; first reminder right away, off the hotkey thread
     } else {
-        SetTimer(ReduceEyeStrain, 0)
+        SetTimer(EyeStrainReminder, 0)
+        ToolTip("20-20-20 reminders off")
+        SetTimer(() => ToolTip(), -2000)
     }
-    return
+}
+
+EyeStrainOn := false
+
+EyeStrainReminder() {
+    global EyeStrainOn
+    SoundPlay("*16", 1)
+    MsgBox("Look 20 feet away for 20 seconds!", "", "T5")
+    Sleep(20 * 1000)
+    SoundPlay("*64", 1)
+    answer := InputBox("Minutes until the next reminder (0 or Cancel to stop)", "All Done!", "", "20")
+    minutes := (answer.Result = "OK" && IsNumber(answer.Value)) ? Number(answer.Value) : 0
+    if (!EyeStrainOn) ; turned off with F10 while the prompt was open
+        return
+    if (minutes <= 0) {
+        EyeStrainOn := false
+        SetTimer(EyeStrainReminder, 0)
+        MsgBox("20-20-20 reminders stopped.", "", "T5")
+        return
+    }
+    ; One-shot timer, re-armed after each prompt so a new interval takes effect.
+    SetTimer(EyeStrainReminder, -minutes * 60000)
 }
 
 ^!l:: ; Lock Computer when windows key doesn't work (Ctrl + Alt + L)
@@ -43,13 +52,13 @@ F10:: ; 20-20-20 every 20 minutes look 20 feet away for 20 seconds (F10)
 
 ^+d:: ; Open Downloads Folder (Ctrl + Shift + D)
 {
-    Run "C:\Users\rpb003\Downloads" ; ctrl+shift+d
+    Run A_UserProfile "\Downloads" ; ctrl+shift+d
     return
 }
 
 #+d:: ; Open Desktop Folder (Win + shift + d)
 {
-    Run "C:\Users\rpb003\Desktop" ; Win+shift+d
+    Run A_UserProfile "\Desktop" ; Win+shift+d
     return
 }
 
@@ -58,18 +67,18 @@ F10:: ; 20-20-20 every 20 minutes look 20 feet away for 20 seconds (F10)
     Run "olk.exe"
     Sleep 1000
     ; Run "C:\Program Files\Zen Browser\zen.exe"
-    Run "C:\Users\rpb003\AppData\Local\BraveSoftware\Brave-Browser\Application\brave.exe"
+    Run EnvGet("LOCALAPPDATA") "\BraveSoftware\Brave-Browser\Application\brave.exe"
     Sleep 1000
     Run "C:\Program Files\Cisco Spark\CiscoCollabHost.exe"
     Sleep 1000
-    ; Run "C:\Users\rpb003\AppData\Local\Programs\Microsoft VS Code\Code.exe"
+    ; Run EnvGet("LOCALAPPDATA") "\Programs\Microsoft VS Code\Code.exe"
     ; Sleep 1000
-    ; Run "C:\Users\rpb003\AppData\Local\Programs\Bitwarden\Bitwarden.exe"
+    ; Run EnvGet("LOCALAPPDATA") "\Programs\Bitwarden\Bitwarden.exe"
     ; Sleep 1000
     Run "C:\Program Files\WezTerm\wezterm-gui.exe"
-    ;Run "C:\Users\rpb003\AppData\Local\Microsoft\WindowsApps\wt.exe"
+    ;Run EnvGet("LOCALAPPDATA") "\Microsoft\WindowsApps\wt.exe"
     Sleep 1000
-    Run "C:\Users\rpb003\AppData\Local\Programs\obsidian\Obsidian.exe"
+    Run EnvGet("LOCALAPPDATA") "\Programs\obsidian\Obsidian.exe"
     ; Sleep 1000
     ; Run "C:\Program Files\WindowsApps\Microsoft.Todos_2.148.3611.0_x64__8wekyb3d8bbwe\Todo.exe"
     ;Run "Todo.exe"
@@ -104,12 +113,19 @@ SwitchToWindowsTerminal() {
     }
 }
 
-; Hotkey to use Ctrl+Shift+C to launch/restore the Windows Terminal.
-^+c:: SwitchToWindowsTerminal()
+; Hotkey to launch/restore/minimize WezTerm (Ctrl + Alt + W).
+; Not Ctrl+Shift+C: that's terminal copy, and MiddleClickPaste.ahk sends it.
+^!w:: SwitchToWindowsTerminal() ; Toggle WezTerm (Ctrl + Alt + W)
 
-^!d:: ;Open AltPro local project (Ctrl + Alt + D)
+^!d:: ;Open local 4D project (Ctrl + Alt + D)
 {
-    Run "C:\Program Files\4D\4D v20.1\4D\4D.exe C:\dev\AltPro\4D\Project\AltPro.4DProject" ; Ctrl+Alt+d
+    ; Set FOURD_PROJECT to the full path of your .4DProject file.
+    project := EnvGet("FOURD_PROJECT")
+    if (project = "") {
+        MsgBox("Set the FOURD_PROJECT environment variable to your .4DProject path.", "Open 4D project", "T5")
+        return
+    }
+    Run '"C:\Program Files\4D\4D v20.1\4D\4D.exe" "' project '"'
     return
 }
 
@@ -127,10 +143,9 @@ SwitchToWindowsTerminal() {
 
 +F3:: ; Close all windows (Shift+F3)
 {
-    Send "!+e"
+    Send "!+q" ; exit GlazeWM first (wm-exit)
     idList := WinGetList(, , "Citrix Workspace")
     for thisId in idList {
-        RTrim(thisId, "0")
         thisTitle := WinGetTitle(thisId)
         switch thisTitle {
             case "", "Program Manager", "Citrix Workspace", "AutoHotKeyScripts", "GlazeWM", "Zebar": ; do nothing
@@ -190,7 +205,7 @@ SwitchToWindowsTerminal() {
 ;    return
 ;}
 
-!+s:: ;Autohotkey ShortcutGuide (Alt + Shift + S)
+^!h:: ;Autohotkey ShortcutGuide (Ctrl + Alt + H)
 {
     HotKeyText := readHotkeys("MyScript.ahk")
     myGui := Gui()
